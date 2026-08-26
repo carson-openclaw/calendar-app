@@ -29,13 +29,10 @@ import com.omnipaws.calendar.ui.theme.Accent
 import com.omnipaws.calendar.ui.theme.AccentSoft
 import com.omnipaws.calendar.ui.theme.DayText
 import com.omnipaws.calendar.ui.theme.DayTextMuted
-import com.omnipaws.calendar.ui.theme.EventDotColor
 import com.omnipaws.calendar.ui.theme.Paper
 import java.time.DayOfWeek
 import java.time.LocalDate
 import java.time.YearMonth
-import java.time.temporal.WeekFields
-import java.util.Locale
 
 private val weekdayLabels = listOf("Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun")
 
@@ -46,7 +43,8 @@ fun MonthCalendar(
     selectedDay: LocalDate?,
     eventDays: Set<Int>,
     onDayClick: (LocalDate) -> Unit,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    dayTagColors: Map<Int, Set<Color>> = emptyMap()
 ) {
     Column(modifier = modifier.fillMaxWidth()) {
         WeekdayHeader()
@@ -56,7 +54,8 @@ fun MonthCalendar(
             today = today,
             selectedDay = selectedDay,
             eventDays = eventDays,
-            onDayClick = onDayClick
+            onDayClick = onDayClick,
+            dayTagColors = dayTagColors
         )
     }
 }
@@ -87,13 +86,12 @@ private fun MonthGrid(
     today: LocalDate,
     selectedDay: LocalDate?,
     eventDays: Set<Int>,
-    onDayClick: (LocalDate) -> Unit
+    onDayClick: (LocalDate) -> Unit,
+    dayTagColors: Map<Int, Set<Color>>
 ) {
     val firstDayOfMonth = yearMonth.atDay(1)
     val daysInMonth = yearMonth.lengthOfMonth()
-    val firstDayOfWeek = WeekFields.of(Locale.getDefault()).dayOfWeek()
-    val startOffset = firstDayOfMonth.with(firstDayOfWeek, DayOfWeek.MONDAY).dayOfWeek.value -
-        firstDayOfMonth.dayOfWeek.value
+    val startOffset = (firstDayOfMonth.dayOfWeek.value + 7 - DayOfWeek.MONDAY.value) % 7
 
     val totalCells = startOffset + daysInMonth
     val rows = (totalCells + 6) / 7
@@ -117,12 +115,14 @@ private fun MonthGrid(
                         val isToday = date == today
                         val isSelected = date == selectedDay
                         val hasEvent = dayNumber in eventDays
+                        val colors = dayTagColors[dayNumber] ?: emptySet()
 
                         DayCell(
                             day = dayNumber,
                             isToday = isToday,
                             isSelected = isSelected,
                             hasEvent = hasEvent,
+                            tagColors = colors,
                             onClick = { onDayClick(date) },
                             modifier = Modifier.weight(1f)
                         )
@@ -141,6 +141,7 @@ private fun DayCell(
     isToday: Boolean,
     isSelected: Boolean,
     hasEvent: Boolean,
+    tagColors: Set<Color>,
     onClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
@@ -189,14 +190,32 @@ private fun DayCell(
             )
 
             if (hasEvent) {
-                Box(
-                    modifier = Modifier
-                        .size(4.dp)
-                        .clip(CircleShape)
-                        .background(
-                            if (isSelected) Paper else EventDotColor
+                val displayColors = tagColors.take(3).toList()
+                Row(
+                    horizontalArrangement = Arrangement.spacedBy(2.dp),
+                    modifier = Modifier.padding(top = 1.dp)
+                ) {
+                    displayColors.forEach { color ->
+                        Box(
+                            modifier = Modifier
+                                .size(4.dp)
+                                .clip(CircleShape)
+                                .background(
+                                    if (isSelected) Paper else color
+                                )
                         )
-                )
+                    }
+                    if (displayColors.isEmpty()) {
+                        Box(
+                            modifier = Modifier
+                                .size(4.dp)
+                                .clip(CircleShape)
+                                .background(
+                                    if (isSelected) Paper else Accent
+                                )
+                        )
+                    }
+                }
             } else {
                 Box(modifier = Modifier.size(4.dp))
             }

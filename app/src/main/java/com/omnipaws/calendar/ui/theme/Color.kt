@@ -40,3 +40,7 @@ val CategoryPersonal = Color(0xFF9CAF9A)
 val CategoryWork = Color(0xFFB8A9C9)
 val CategoryHealth = Color(0xFFC4A882)
 val CategorySocial = Color(0xFF8AABB8)
+
+// Timeline-specific
+val CardPastSurface = Color(0xFFF7F4ED)
+val NowDot = Accent
