@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Aura Calendar Palette -->
+    <color name="paper">#FAF7F0</color>
+    <color name="paper_dim">#F2EDE3</color>
+    <color name="ink">#2B2A26</color>
+    <color name="ink_light">#4A4943</color>
+    <color name="muted">#8A8579</color>
+    <color name="muted_light">#B5B0A5</color>
+    <color name="accent">#9CAF9A</color>
+    <color name="accent_dim">#849A82</color>
+    <color name="accent_light">#C5D8C4</color>
+    <color name="white">#FFFFFF</color>
+    <color name="surface">#FAF7F0</color>
+    <color name="surface_variant">#F2EDE3</color>
+    <color name="outline">#D4CFC5</color>
+    <color name="outline_variant">#E8E3D9</color>
+
+    <!-- System -->
+    <color name="status_bar">#FAF7F0</color>
+    <color name="nav_bar">#FAF7F0</color>
+</resources>
