@@ -51,6 +51,14 @@ object EventRepository {
         }
     }
 
+    fun renameTag(id: String, newName: String) {
+        val index = _tags.indexOfFirst { it.id == id }
+        if (index >= 0) {
+            _tags[index] = _tags[index].copy(name = newName)
+            saveTags()
+        }
+    }
+
     fun deleteTag(id: String) {
         val fallbackTagId = DefaultTags.firstOrNull { it.id != id }?.id ?: "tag-personal"
         _events.forEachIndexed { index, event ->

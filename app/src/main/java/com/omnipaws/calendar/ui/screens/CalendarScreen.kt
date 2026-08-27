@@ -11,6 +11,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
@@ -110,6 +111,7 @@ private fun isEventNow(event: CalendarEvent, today: LocalDate, now: LocalTime): 
 @Composable
 fun CalendarScreen(
     onDayClick: (LocalDate) -> Unit = {},
+    onEventClick: (CalendarEvent) -> Unit = {},
     modifier: Modifier = Modifier
 ) {
     val today = LocalDate.now()
@@ -275,6 +277,7 @@ fun CalendarScreen(
                 LazyColumn(
                     state = lazyListState,
                     modifier = Modifier.fillMaxSize(),
+                    verticalArrangement = Arrangement.spacedBy(10.dp),
                     contentPadding = PaddingValues(bottom = 100.dp)
                 ) {
                     timelineDays.forEach { day ->
@@ -320,7 +323,7 @@ fun CalendarScreen(
                         ) { event ->
                             EventCard(
                                 event = event,
-                                onClick = { onDayClick(event.date) },
+                                onClick = { onEventClick(event) },
                                 isPast = isEventPast(event, today, now),
                                 isNow = isEventNow(event, today, now)
                             )
@@ -338,6 +341,7 @@ fun CalendarScreen(
             },
             modifier = Modifier
                 .align(Alignment.BottomCenter)
+                .navigationBarsPadding()
                 .padding(bottom = 16.dp)
         )
         }

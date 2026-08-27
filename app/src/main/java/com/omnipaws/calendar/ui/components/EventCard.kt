@@ -37,10 +37,11 @@ import com.omnipaws.calendar.data.CalendarEvent
 import com.omnipaws.calendar.data.EventRepository
 import com.omnipaws.calendar.data.formatEventTime
 import com.omnipaws.calendar.ui.theme.Accent
-import com.omnipaws.calendar.ui.theme.CardPastSurface
 import com.omnipaws.calendar.ui.theme.CardShadow
 import com.omnipaws.calendar.ui.theme.CardSurface
 import com.omnipaws.calendar.ui.theme.Muted
+import com.omnipaws.calendar.ui.theme.MutedLight
+import java.time.format.DateTimeFormatter
 
 @Composable
 fun EventCard(
@@ -52,6 +53,8 @@ fun EventCard(
 ) {
     val tagColor = Color(EventRepository.tagById(event.tagId).color.toInt())
 
+    val pastTagColor = if (isPast) MutedLight else tagColor
+
     val timeText = buildString {
         if (event.startTime.isNotBlank()) append(formatEventTime(event.startTime))
         if (event.endTime.isNotBlank() && event.endTime != event.startTime) {
@@ -61,12 +64,12 @@ fun EventCard(
     }
 
     val cardColor by animateColorAsState(
-        targetValue = if (isPast) CardPastSurface else CardSurface,
+        targetValue = CardSurface,
         animationSpec = tween(300),
         label = "cardColor"
     )
 
-    val contentAlpha = if (isPast) 0.55f else 1f
+    val contentAlpha = if (isPast) 0.65f else 1f
 
     val nowBorder = Modifier.then(
         if (isNow) Modifier.border(
@@ -102,17 +105,27 @@ fun EventCard(
                 modifier = Modifier
                     .width(3.dp)
                     .height(40.dp)
-                    .background(tagColor, RoundedCornerShape(2.dp))
+                    .background(pastTagColor, RoundedCornerShape(2.dp))
             )
 
             Spacer(modifier = Modifier.width(14.dp))
 
             Column(modifier = Modifier.weight(1f)) {
+                if (event.isMultiDay) {
+                    val shortFormatter = DateTimeFormatter.ofPattern("d MMM")
+                    val rangeText = "${event.date.format(shortFormatter)} \u2013 ${event.endDate!!.format(shortFormatter)}"
+                    Text(
+                        text = rangeText,
+                        style = MaterialTheme.typography.labelMedium,
+                        color = if (isPast) MutedLight else Muted
+                    )
+                    Spacer(modifier = Modifier.height(2.dp))
+                }
                 if (timeText.isNotBlank()) {
                     Text(
                         text = timeText,
                         style = MaterialTheme.typography.labelMedium,
-                        color = Muted
+                        color = if (isPast) MutedLight else Muted
                     )
                     Spacer(modifier = Modifier.height(2.dp))
                 }
@@ -121,7 +134,7 @@ fun EventCard(
                     style = MaterialTheme.typography.bodyLarge.copy(
                         fontWeight = FontWeight.Medium
                     ),
-                    color = MaterialTheme.colorScheme.onSurface
+                    color = if (isPast) MutedLight else MaterialTheme.colorScheme.onSurface
                 )
                 if (event.location.isNotBlank()) {
                     Spacer(modifier = Modifier.height(3.dp))
@@ -200,7 +213,7 @@ fun EventCard(
                 Box(
                     modifier = Modifier
                         .size(8.dp)
-                        .background(tagColor, CircleShape)
+                        .background(pastTagColor, CircleShape)
                 )
             }
         }

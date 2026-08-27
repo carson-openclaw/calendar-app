@@ -27,6 +27,7 @@ data class CalendarEvent(
     val id: String = UUID.randomUUID().toString(),
     val title: String,
     val date: LocalDate,
+    val endDate: LocalDate? = null,
     val startTime: String = "",
     val endTime: String = "",
     val tagId: String = "tag-personal",
@@ -34,10 +35,15 @@ data class CalendarEvent(
     val location: String = "",
     val people: String = ""
 ) {
+    val isMultiDay: Boolean get() = endDate != null && endDate != date
+
     fun toJson(): JSONObject = JSONObject().apply {
         put("id", id)
         put("title", title)
         put("date", date.toString())
+        if (endDate != null && endDate != date) {
+            put("endDate", endDate.toString())
+        }
         put("startTime", startTime)
         put("endTime", endTime)
         put("tagId", tagId)
@@ -59,10 +65,19 @@ data class CalendarEvent(
                     else -> "tag-personal"
                 }
             }
+            val endDate = if (json.has("endDate")) {
+                try { LocalDate.parse(json.getString("endDate")) } catch (_: Exception) { null }
+            } else {
+                val millis = json.optLong("endDateMillis", 0L)
+                if (millis > 0) {
+                    try { LocalDate.ofEpochDay(millis / 86400000L) } catch (_: Exception) { null }
+                } else null
+            }
             return CalendarEvent(
                 id = json.getString("id"),
                 title = json.getString("title"),
                 date = LocalDate.parse(json.getString("date")),
+                endDate = endDate,
                 startTime = json.optString("startTime", ""),
                 endTime = json.optString("endTime", ""),
                 tagId = tagId,

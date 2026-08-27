@@ -3,7 +3,9 @@ package com.omnipaws.calendar
 import app.cash.paparazzi.Paparazzi
 import com.omnipaws.calendar.data.CalendarEvent
 import com.omnipaws.calendar.data.EventRepository
+import com.omnipaws.calendar.ui.components.AddEventDialog
 import com.omnipaws.calendar.ui.screens.CalendarScreen
+import com.omnipaws.calendar.ui.screens.EventDetailScreen
 import com.omnipaws.calendar.ui.screens.EventsListScreen
 import com.omnipaws.calendar.ui.theme.AuraTheme
 import org.junit.Rule
@@ -97,6 +99,34 @@ class UiSnapshotTest {
                     date = LocalDate.now().toString(),
                     onBack = {},
                     onEventClick = {}
+                )
+            }
+        }
+    }
+
+    @Test
+    fun addEventDialog_tagCirclesAndDates() {
+        seedDemo()
+        paparazzi.snapshot {
+            AuraTheme {
+                AddEventDialog(
+                    onDismiss = {},
+                    onConfirm = {},
+                    initialDate = LocalDate.now()
+                )
+            }
+        }
+    }
+
+    @Test
+    fun eventDetailScreen() {
+        seedDemo()
+        val firstId = EventRepository.events.first().id
+        paparazzi.snapshot {
+            AuraTheme {
+                EventDetailScreen(
+                    eventId = firstId,
+                    onBack = {}
                 )
             }
         }

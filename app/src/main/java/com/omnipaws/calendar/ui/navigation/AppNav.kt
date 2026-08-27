@@ -8,14 +8,17 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.navArgument
 import com.omnipaws.calendar.ui.screens.CalendarScreen
+import com.omnipaws.calendar.ui.screens.EventDetailScreen
 import com.omnipaws.calendar.ui.screens.EventsListScreen
 import java.time.LocalDate
 
 object Routes {
     const val CALENDAR = "calendar"
     const val EVENTS = "events/{date}"
+    const val EVENT = "event/{eventId}"
 
     fun events(date: String) = "events/$date"
+    fun event(eventId: String) = "event/$eventId"
 }
 
 @Composable
@@ -32,6 +35,9 @@ fun AppNav(
             CalendarScreen(
                 onDayClick = { date ->
                     navController.navigate(Routes.events(date.toString()))
+                },
+                onEventClick = { event ->
+                    navController.navigate(Routes.event(event.id))
                 }
             )
         }
@@ -48,7 +54,23 @@ fun AppNav(
             EventsListScreen(
                 date = date,
                 onBack = { navController.popBackStack() },
-                onEventClick = { /* future: event detail */ }
+                onEventClick = { eventId ->
+                    navController.navigate(Routes.event(eventId))
+                }
+            )
+        }
+
+        composable(
+            route = Routes.EVENT,
+            arguments = listOf(
+                navArgument("eventId") { type = NavType.StringType }
+            )
+        ) { backStackEntry ->
+            val eventId = backStackEntry.arguments?.getString("eventId") ?: ""
+
+            EventDetailScreen(
+                eventId = eventId,
+                onBack = { navController.popBackStack() }
             )
         }
     }
