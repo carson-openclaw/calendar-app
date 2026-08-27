@@ -1,9 +1,16 @@
 package com.omnipaws.calendar
 
 import app.cash.paparazzi.Paparazzi
+import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.padding
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.unit.dp
 import com.omnipaws.calendar.data.CalendarEvent
 import com.omnipaws.calendar.data.EventRepository
 import com.omnipaws.calendar.ui.components.AddEventDialog
+import com.omnipaws.calendar.ui.components.EventCard
 import com.omnipaws.calendar.ui.screens.CalendarScreen
 import com.omnipaws.calendar.ui.screens.EventDetailScreen
 import com.omnipaws.calendar.ui.screens.EventsListScreen
@@ -128,6 +135,37 @@ class UiSnapshotTest {
                     eventId = firstId,
                     onBack = {}
                 )
+            }
+        }
+    }
+
+    @Test
+    fun pastEventCardIsSingleSurface() {
+        // Regression: past cards used to alpha-fade the whole Surface, making the
+        // shadow show through as a grey rounded 'border' with a sharp inner box.
+        // The card must now be ONE clean opaque surface with no grey ring.
+        paparazzi.snapshot {
+            AuraTheme {
+                androidx.compose.foundation.layout.Box(
+                    modifier = androidx.compose.ui.Modifier
+                        .fillMaxSize()
+                        .background(com.omnipaws.calendar.ui.theme.PaperSurface)
+                        .padding(20.dp)
+                ) {
+                    EventCard(
+                        event = CalendarEvent(
+                            id = "past-event-1",
+                            title = "Morning yoga flow",
+                            date = LocalDate.now().minusDays(1),
+                            startTime = "07:30",
+                            endTime = "08:30",
+                            tagId = "tag-work"
+                        ),
+                        onClick = {},
+                        isPast = true,
+                        isNow = false
+                    )
+                }
             }
         }
     }

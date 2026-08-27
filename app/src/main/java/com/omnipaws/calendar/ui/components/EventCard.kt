@@ -28,7 +28,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
@@ -67,8 +66,6 @@ fun EventCard(
         label = "cardColor"
     )
 
-    val contentAlpha = if (isPast) 0.65f else 1f
-
     val nowBorder = Modifier.then(
         if (isNow) Modifier.border(
             width = 1.2.dp,
@@ -86,7 +83,6 @@ fun EventCard(
                 shape = RoundedCornerShape(14.dp),
                 ambientColor = CardShadow
             )
-            .alpha(contentAlpha)
             .clickable(onClick = onClick),
         shape = RoundedCornerShape(14.dp),
         color = cardColor,
@@ -103,7 +99,7 @@ fun EventCard(
                 modifier = Modifier
                     .width(3.dp)
                     .height(40.dp)
-                    .background(if (isPast) tagColor.copy(alpha = 0.75f) else tagColor, RoundedCornerShape(2.dp))
+                    .background(tagColor, RoundedCornerShape(2.dp))
             )
 
             Spacer(modifier = Modifier.width(14.dp))
@@ -211,7 +207,7 @@ fun EventCard(
                 Box(
                     modifier = Modifier
                         .size(8.dp)
-                        .background(if (isPast) tagColor.copy(alpha = 0.75f) else tagColor, CircleShape)
+                        .background(tagColor, CircleShape)
                 )
             }
         }
