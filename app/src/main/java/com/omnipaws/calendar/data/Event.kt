@@ -33,9 +33,12 @@ data class CalendarEvent(
     val tagId: String = "tag-personal",
     val note: String = "",
     val location: String = "",
-    val people: String = ""
+    val people: String = "",
+    val externalId: String? = null,
+    val source: String = "local"
 ) {
     val isMultiDay: Boolean get() = endDate != null && endDate != date
+    val syncedFromGoogle: Boolean get() = source == "google"
 
     fun toJson(): JSONObject = JSONObject().apply {
         put("id", id)
@@ -50,6 +53,8 @@ data class CalendarEvent(
         put("note", note)
         put("location", location)
         put("people", people)
+        if (externalId != null) put("externalId", externalId)
+        put("source", source)
     }
 
     companion object {
@@ -83,7 +88,9 @@ data class CalendarEvent(
                 tagId = tagId,
                 note = json.optString("note", ""),
                 location = json.optString("location", ""),
-                people = json.optString("people", "")
+                people = json.optString("people", ""),
+                externalId = if (json.has("externalId")) json.optString("externalId", null) else null,
+                source = json.optString("source", "local")
             )
         }
     }

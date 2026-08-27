@@ -29,6 +29,7 @@ import androidx.compose.material3.DatePickerDefaults
 import androidx.compose.material3.DatePickerDialog
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.TimePicker
+import androidx.compose.material3.TimePickerDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
@@ -50,9 +51,11 @@ import androidx.compose.ui.unit.dp
 import com.omnipaws.calendar.data.CalendarEvent
 import com.omnipaws.calendar.data.EventRepository
 import com.omnipaws.calendar.ui.theme.Accent
+import com.omnipaws.calendar.ui.theme.AccentSoft
 import com.omnipaws.calendar.ui.theme.Ink
 import com.omnipaws.calendar.ui.theme.Muted
 import com.omnipaws.calendar.ui.theme.Outline
+import com.omnipaws.calendar.ui.theme.Paper
 import com.omnipaws.calendar.ui.theme.PaperSurface
 import java.time.Instant
 import java.time.LocalDate
@@ -440,6 +443,8 @@ fun AddEventDialog(
         )
         AlertDialog(
             onDismissRequest = { showStartTimePicker = false },
+            containerColor = PaperSurface,
+            titleContentColor = Ink,
             confirmButton = {
                 TextButton(onClick = {
                     startTime = "%02d:%02d".format(state.hour, state.minute)
@@ -451,8 +456,27 @@ fun AddEventDialog(
                     Text("Cancel", color = Muted)
                 }
             },
-            shape = RoundedCornerShape(20.dp),
-            text = { TimePicker(state = state) }
+            shape = RoundedCornerShape(24.dp),
+            text = {
+                TimePicker(
+                    state = state,
+                    colors = TimePickerDefaults.colors(
+                        clockDialColor = PaperSurface,
+                        clockDialSelectedContentColor = Paper,
+                        clockDialUnselectedContentColor = Ink,
+                        selectorColor = Accent,
+                        containerColor = PaperSurface,
+                        periodSelectorSelectedContainerColor = Accent,
+                        periodSelectorSelectedContentColor = Paper,
+                        periodSelectorUnselectedContainerColor = AccentSoft,
+                        periodSelectorUnselectedContentColor = Ink,
+                        timeSelectorSelectedContainerColor = Accent,
+                        timeSelectorSelectedContentColor = Paper,
+                        timeSelectorUnselectedContainerColor = AccentSoft,
+                        timeSelectorUnselectedContentColor = Ink
+                    )
+                )
+            }
         )
     }
 
@@ -467,6 +491,8 @@ fun AddEventDialog(
         )
         AlertDialog(
             onDismissRequest = { showEndTimePicker = false },
+            containerColor = PaperSurface,
+            titleContentColor = Ink,
             confirmButton = {
                 TextButton(onClick = {
                     endTime = "%02d:%02d".format(state.hour, state.minute)
@@ -478,8 +504,27 @@ fun AddEventDialog(
                     Text("Cancel", color = Muted)
                 }
             },
-            shape = RoundedCornerShape(20.dp),
-            text = { TimePicker(state = state) }
+            shape = RoundedCornerShape(24.dp),
+            text = {
+                TimePicker(
+                    state = state,
+                    colors = TimePickerDefaults.colors(
+                        clockDialColor = PaperSurface,
+                        clockDialSelectedContentColor = Paper,
+                        clockDialUnselectedContentColor = Ink,
+                        selectorColor = Accent,
+                        containerColor = PaperSurface,
+                        periodSelectorSelectedContainerColor = Accent,
+                        periodSelectorSelectedContentColor = Paper,
+                        periodSelectorUnselectedContainerColor = AccentSoft,
+                        periodSelectorUnselectedContentColor = Ink,
+                        timeSelectorSelectedContainerColor = Accent,
+                        timeSelectorSelectedContentColor = Paper,
+                        timeSelectorUnselectedContainerColor = AccentSoft,
+                        timeSelectorUnselectedContentColor = Ink
+                    )
+                )
+            }
         )
     }
 }

@@ -67,8 +67,8 @@ fun MonthYearPickerSheet(
     val yearListState = rememberLazyListState()
 
     LaunchedEffect(selectedYear) {
-        val idx = selectedYear - 2020
-        if (idx in 0..100) {
+        val idx = selectedYear - 1900
+        if (idx in 0..220) {
             yearListState.animateScrollToItem(idx)
         }
     }
@@ -153,7 +153,7 @@ fun MonthYearPickerSheet(
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 IconButton(
-                    onClick = { selectedYear-- }
+                    onClick = { if (selectedYear > 1900) selectedYear-- }
                 ) {
                     Icon(
                         imageVector = Icons.Rounded.ChevronLeft,
@@ -168,7 +168,7 @@ fun MonthYearPickerSheet(
                     horizontalArrangement = Arrangement.spacedBy(4.dp),
                     modifier = Modifier.weight(1f)
                 ) {
-                    items((2020..2120).toList(), key = { it }) { year ->
+                    items((1900..2120).toList(), key = { it }) { year ->
                         val isSelected = year == selectedYear
                         val isCurrentYear = year == today.year
 
@@ -207,7 +207,7 @@ fun MonthYearPickerSheet(
                 }
 
                 IconButton(
-                    onClick = { selectedYear++ }
+                    onClick = { if (selectedYear < 2120) selectedYear++ }
                 ) {
                     Icon(
                         imageVector = Icons.Rounded.ChevronRight,

@@ -7,15 +7,19 @@ import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.navArgument
+import com.omnipaws.calendar.ui.screens.AssistantScreen
 import com.omnipaws.calendar.ui.screens.CalendarScreen
 import com.omnipaws.calendar.ui.screens.EventDetailScreen
 import com.omnipaws.calendar.ui.screens.EventsListScreen
+import com.omnipaws.calendar.ui.screens.SyncScreen
 import java.time.LocalDate
 
 object Routes {
     const val CALENDAR = "calendar"
     const val EVENTS = "events/{date}"
     const val EVENT = "event/{eventId}"
+    const val ASSISTANT = "assistant"
+    const val SYNC = "sync"
 
     fun events(date: String) = "events/$date"
     fun event(eventId: String) = "event/$eventId"
@@ -38,6 +42,12 @@ fun AppNav(
                 },
                 onEventClick = { event ->
                     navController.navigate(Routes.event(event.id))
+                },
+                onAssistantClick = {
+                    navController.navigate(Routes.ASSISTANT)
+                },
+                onSyncClick = {
+                    navController.navigate(Routes.SYNC)
                 }
             )
         }
@@ -70,6 +80,18 @@ fun AppNav(
 
             EventDetailScreen(
                 eventId = eventId,
+                onBack = { navController.popBackStack() }
+            )
+        }
+
+        composable(Routes.ASSISTANT) {
+            AssistantScreen(
+                onBack = { navController.popBackStack() }
+            )
+        }
+
+        composable(Routes.SYNC) {
+            SyncScreen(
                 onBack = { navController.popBackStack() }
             )
         }

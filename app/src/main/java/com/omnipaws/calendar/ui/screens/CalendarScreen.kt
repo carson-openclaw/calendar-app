@@ -20,6 +20,8 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.ChevronLeft
 import androidx.compose.material.icons.rounded.ChevronRight
+import androidx.compose.material.icons.rounded.SmartToy
+import androidx.compose.material.icons.rounded.Cloud
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -69,7 +71,7 @@ import androidx.compose.material3.FloatingActionButtonDefaults
 import com.omnipaws.calendar.data.CalendarEvent
 
 
-private const val INITIAL_PAGE = 1200
+private const val INITIAL_PAGE = 1540
 
 private data class TimelineDay(
     val date: LocalDate,
@@ -112,6 +114,8 @@ private fun isEventNow(event: CalendarEvent, today: LocalDate, now: LocalTime): 
 fun CalendarScreen(
     onDayClick: (LocalDate) -> Unit = {},
     onEventClick: (CalendarEvent) -> Unit = {},
+    onAssistantClick: () -> Unit = {},
+    onSyncClick: () -> Unit = {},
     modifier: Modifier = Modifier
 ) {
     val today = LocalDate.now()
@@ -153,6 +157,26 @@ fun CalendarScreen(
             .padding(horizontal = 24.dp)
     ) {
         Spacer(modifier = Modifier.height(24.dp))
+
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.End
+        ) {
+            IconButton(onClick = onSyncClick) {
+                Icon(
+                    imageVector = Icons.Rounded.Cloud,
+                    contentDescription = "Calendar sync",
+                    tint = Accent
+                )
+            }
+            IconButton(onClick = onAssistantClick) {
+                Icon(
+                    imageVector = Icons.Rounded.SmartToy,
+                    contentDescription = "Assistant",
+                    tint = Accent
+                )
+            }
+        }
 
         MonthHeader(
             yearMonth = currentMonth,
