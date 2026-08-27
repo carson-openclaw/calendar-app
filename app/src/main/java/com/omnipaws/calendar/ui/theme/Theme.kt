@@ -46,9 +46,12 @@ fun AuraTheme(
     content: @Composable () -> Unit
 ) {
     val view = LocalView.current
-    if (!view.isInEditMode) {
+    // Only touch the window when a real Activity backs the view (also true in
+    // layoutlib/Paparazzi edit-mode where context is a BridgeContext, not an Activity).
+    val context = view.context
+    if (context is Activity) {
         SideEffect {
-            val window = (view.context as Activity).window
+            val window = (context as Activity).window
             window.statusBarColor = Paper.toArgb()
             WindowCompat.getInsetsController(window, view).isAppearanceLightStatusBars = true
             window.navigationBarColor = Paper.toArgb()
