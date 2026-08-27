@@ -53,8 +53,6 @@ fun EventCard(
 ) {
     val tagColor = Color(EventRepository.tagById(event.tagId).color.toInt())
 
-    val pastTagColor = if (isPast) MutedLight else tagColor
-
     val timeText = buildString {
         if (event.startTime.isNotBlank()) append(formatEventTime(event.startTime))
         if (event.endTime.isNotBlank() && event.endTime != event.startTime) {
@@ -105,7 +103,7 @@ fun EventCard(
                 modifier = Modifier
                     .width(3.dp)
                     .height(40.dp)
-                    .background(pastTagColor, RoundedCornerShape(2.dp))
+                    .background(if (isPast) tagColor.copy(alpha = 0.75f) else tagColor, RoundedCornerShape(2.dp))
             )
 
             Spacer(modifier = Modifier.width(14.dp))
@@ -213,7 +211,7 @@ fun EventCard(
                 Box(
                     modifier = Modifier
                         .size(8.dp)
-                        .background(pastTagColor, CircleShape)
+                        .background(if (isPast) tagColor.copy(alpha = 0.75f) else tagColor, CircleShape)
                 )
             }
         }

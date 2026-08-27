@@ -28,6 +28,7 @@ import androidx.compose.material3.DatePicker
 import androidx.compose.material3.DatePickerDefaults
 import androidx.compose.material3.DatePickerDialog
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.TimePicker
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
@@ -63,21 +64,25 @@ import java.time.format.DateTimeFormatter
 fun AddEventDialog(
     onDismiss: () -> Unit,
     onConfirm: (CalendarEvent) -> Unit,
-    initialDate: LocalDate = LocalDate.now()
+    initialDate: LocalDate = LocalDate.now(),
+    initialEvent: CalendarEvent? = null
 ) {
-    var title by remember { mutableStateOf("") }
-    var selectedTagId by remember { mutableStateOf("tag-personal") }
-    var startDate by remember { mutableStateOf(initialDate) }
-    var endDate by remember { mutableStateOf<LocalDate?>(null) }
-    var startTime by remember { mutableStateOf("09:00") }
-    var endTime by remember { mutableStateOf("10:00") }
-    var note by remember { mutableStateOf("") }
-    var location by remember { mutableStateOf("") }
-    var people by remember { mutableStateOf("") }
+    val isEditMode = initialEvent != null
+    var title by remember { mutableStateOf(initialEvent?.title ?: "") }
+    var selectedTagId by remember { mutableStateOf(initialEvent?.tagId ?: "tag-personal") }
+    var startDate by remember { mutableStateOf(initialEvent?.date ?: initialDate) }
+    var endDate by remember { mutableStateOf(initialEvent?.endDate) }
+    var startTime by remember { mutableStateOf(initialEvent?.startTime ?: "09:00") }
+    var endTime by remember { mutableStateOf(initialEvent?.endTime ?: "10:00") }
+    var note by remember { mutableStateOf(initialEvent?.note ?: "") }
+    var location by remember { mutableStateOf(initialEvent?.location ?: "") }
+    var people by remember { mutableStateOf(initialEvent?.people ?: "") }
     var isRenaming by remember { mutableStateOf(false) }
     var renameText by remember { mutableStateOf("") }
     var showStartDatePicker by remember { mutableStateOf(false) }
     var showEndDatePicker by remember { mutableStateOf(false) }
+    var showStartTimePicker by remember { mutableStateOf(false) }
+    var showEndTimePicker by remember { mutableStateOf(false) }
 
     val canSave = title.isNotBlank()
     val tags = EventRepository.tags
@@ -89,7 +94,7 @@ fun AddEventDialog(
         shape = RoundedCornerShape(20.dp),
         title = {
             Text(
-                text = "New Event",
+                text = if (isEditMode) "Edit Event" else "New Event",
                 style = MaterialTheme.typography.headlineSmall
             )
         },
@@ -285,39 +290,17 @@ fun AddEventDialog(
                     modifier = Modifier.fillMaxWidth(),
                     horizontalArrangement = Arrangement.spacedBy(12.dp)
                 ) {
-                    OutlinedTextField(
-                        value = startTime,
-                        onValueChange = { startTime = it },
-                        label = { Text("Start") },
-                        placeholder = { Text("09:00") },
-                        singleLine = true,
-                        modifier = Modifier.weight(1f),
-                        colors = OutlinedTextFieldDefaults.colors(
-                            focusedBorderColor = Accent,
-                            unfocusedBorderColor = Outline,
-                            focusedContainerColor = PaperSurface,
-                            unfocusedContainerColor = PaperSurface,
-                            cursorColor = Accent,
-                            focusedLabelColor = Accent,
-                            unfocusedLabelColor = Muted
-                        )
+                    TimeField(
+                        label = "Start",
+                        time = startTime,
+                        onClick = { showStartTimePicker = true },
+                        modifier = Modifier.weight(1f)
                     )
-                    OutlinedTextField(
-                        value = endTime,
-                        onValueChange = { endTime = it },
-                        label = { Text("End") },
-                        placeholder = { Text("10:00") },
-                        singleLine = true,
-                        modifier = Modifier.weight(1f),
-                        colors = OutlinedTextFieldDefaults.colors(
-                            focusedBorderColor = Accent,
-                            unfocusedBorderColor = Outline,
-                            focusedContainerColor = PaperSurface,
-                            unfocusedContainerColor = PaperSurface,
-                            cursorColor = Accent,
-                            focusedLabelColor = Accent,
-                            unfocusedLabelColor = Muted
-                        )
+                    TimeField(
+                        label = "End",
+                        time = endTime,
+                        onClick = { showEndTimePicker = true },
+                        modifier = Modifier.weight(1f)
                     )
                 }
 
@@ -346,6 +329,7 @@ fun AddEventDialog(
                         val effectiveEnd = if (endDate == startDate) null else endDate
                         onConfirm(
                             CalendarEvent(
+                                id = initialEvent?.id ?: java.util.UUID.randomUUID().toString(),
                                 title = title.trim(),
                                 date = startDate,
                                 endDate = effectiveEnd,
@@ -444,6 +428,60 @@ fun AddEventDialog(
             )
         }
     }
+
+    if (showStartTimePicker) {
+        val parts = startTime.split(":")
+        val initHour = parts.getOrNull(0)?.toIntOrNull() ?: 9
+        val initMinute = parts.getOrNull(1)?.toIntOrNull() ?: 0
+        val state = androidx.compose.material3.rememberTimePickerState(
+            initialHour = initHour,
+            initialMinute = initMinute,
+            is24Hour = true
+        )
+        AlertDialog(
+            onDismissRequest = { showStartTimePicker = false },
+            confirmButton = {
+                TextButton(onClick = {
+                    startTime = "%02d:%02d".format(state.hour, state.minute)
+                    showStartTimePicker = false
+                }) { Text("OK", color = Accent) }
+            },
+            dismissButton = {
+                TextButton(onClick = { showStartTimePicker = false }) {
+                    Text("Cancel", color = Muted)
+                }
+            },
+            shape = RoundedCornerShape(20.dp),
+            text = { TimePicker(state = state) }
+        )
+    }
+
+    if (showEndTimePicker) {
+        val parts = endTime.split(":")
+        val initHour = parts.getOrNull(0)?.toIntOrNull() ?: 10
+        val initMinute = parts.getOrNull(1)?.toIntOrNull() ?: 0
+        val state = androidx.compose.material3.rememberTimePickerState(
+            initialHour = initHour,
+            initialMinute = initMinute,
+            is24Hour = true
+        )
+        AlertDialog(
+            onDismissRequest = { showEndTimePicker = false },
+            confirmButton = {
+                TextButton(onClick = {
+                    endTime = "%02d:%02d".format(state.hour, state.minute)
+                    showEndTimePicker = false
+                }) { Text("OK", color = Accent) }
+            },
+            dismissButton = {
+                TextButton(onClick = { showEndTimePicker = false }) {
+                    Text("Cancel", color = Muted)
+                }
+            },
+            shape = RoundedCornerShape(20.dp),
+            text = { TimePicker(state = state) }
+        )
+    }
 }
 
 @Composable
@@ -470,6 +508,39 @@ private fun DateField(
         ) {
             Text(
                 text = date,
+                style = MaterialTheme.typography.bodyLarge.copy(
+                    fontFamily = FontFamily.Serif
+                ),
+                color = Ink
+            )
+        }
+    }
+}
+
+@Composable
+private fun TimeField(
+    label: String,
+    time: String,
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier
+) {
+    Column(modifier = modifier) {
+        Text(
+            text = label,
+            style = MaterialTheme.typography.labelMedium,
+            color = Muted,
+            modifier = Modifier.padding(start = 4.dp, bottom = 4.dp)
+        )
+        Box(
+            modifier = Modifier
+                .fillMaxWidth()
+                .border(1.dp, Outline, RoundedCornerShape(4.dp))
+                .background(PaperSurface, RoundedCornerShape(4.dp))
+                .clickable(onClick = onClick)
+                .padding(horizontal = 16.dp, vertical = 14.dp)
+        ) {
+            Text(
+                text = time.ifBlank { "09:00" },
                 style = MaterialTheme.typography.bodyLarge.copy(
                     fontFamily = FontFamily.Serif
                 ),

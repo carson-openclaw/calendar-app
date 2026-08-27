@@ -18,15 +18,22 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.ArrowBack
 import androidx.compose.material.icons.rounded.CalendarToday
+import androidx.compose.material.icons.rounded.Delete
+import androidx.compose.material.icons.rounded.Edit
 import androidx.compose.material.icons.rounded.Place
 import androidx.compose.material.icons.rounded.People
 import androidx.compose.material.icons.rounded.Schedule
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -34,7 +41,11 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.omnipaws.calendar.data.EventRepository
 import com.omnipaws.calendar.data.formatEventTime
+import com.omnipaws.calendar.ui.components.AddEventDialog
+import com.omnipaws.calendar.ui.theme.Accent
 import com.omnipaws.calendar.ui.theme.Muted
+import com.omnipaws.calendar.ui.theme.Outline
+import com.omnipaws.calendar.ui.theme.PaperSurface
 import com.omnipaws.calendar.ui.theme.SoftDivider
 import java.time.format.DateTimeFormatter
 
@@ -56,6 +67,9 @@ fun EventDetailScreen(
         tag?.let { Color(it.color.toInt()) } ?: Muted
     }
 
+    var showEdit by remember { mutableStateOf(false) }
+    var showDeleteConfirm by remember { mutableStateOf(false) }
+
     Column(
         modifier = modifier
             .fillMaxSize()
@@ -66,12 +80,34 @@ fun EventDetailScreen(
     ) {
         Spacer(modifier = Modifier.height(16.dp))
 
-        IconButton(onClick = onBack) {
-            Icon(
-                imageVector = Icons.Rounded.ArrowBack,
-                contentDescription = "Back",
-                tint = MaterialTheme.colorScheme.onSurface
-            )
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            IconButton(onClick = onBack) {
+                Icon(
+                    imageVector = Icons.Rounded.ArrowBack,
+                    contentDescription = "Back",
+                    tint = MaterialTheme.colorScheme.onSurface
+                )
+            }
+            Spacer(modifier = Modifier.weight(1f))
+            if (event != null) {
+                IconButton(onClick = { showEdit = true }) {
+                    Icon(
+                        imageVector = Icons.Rounded.Edit,
+                        contentDescription = "Edit",
+                        tint = Accent
+                    )
+                }
+                IconButton(onClick = { showDeleteConfirm = true }) {
+                    Icon(
+                        imageVector = Icons.Rounded.Delete,
+                        contentDescription = "Delete",
+                        tint = Muted
+                    )
+                }
+            }
         }
 
         if (event == null) {
@@ -230,5 +266,40 @@ fun EventDetailScreen(
                 }
             }
         }
+    }
+
+    if (showEdit && event != null) {
+        AddEventDialog(
+            onDismiss = { showEdit = false },
+            onConfirm = { updatedEvent ->
+                EventRepository.update(updatedEvent)
+                showEdit = false
+            },
+            initialEvent = event
+        )
+    }
+
+    if (showDeleteConfirm && event != null) {
+        AlertDialog(
+            onDismissRequest = { showDeleteConfirm = false },
+            title = { Text("Delete Event") },
+            text = { Text("Are you sure you want to delete \"${event.title}\"?") },
+            confirmButton = {
+                TextButton(onClick = {
+                    EventRepository.delete(event.id)
+                    showDeleteConfirm = false
+                    onBack()
+                }) {
+                    Text("Delete", color = Muted)
+                }
+            },
+            dismissButton = {
+                TextButton(onClick = { showDeleteConfirm = false }) {
+                    Text("Cancel", color = Muted)
+                }
+            },
+            containerColor = PaperSurface,
+            shape = androidx.compose.foundation.shape.RoundedCornerShape(20.dp)
+        )
     }
 }
